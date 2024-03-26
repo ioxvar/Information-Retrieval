@@ -51,27 +51,22 @@ def preprocess_text(title, author, bib, text):
     stemmed_tokens = [stemmer.stem(token) for token in tokens if token not in stop_words]
     return ' '.join(stemmed_tokens)
 
-# Preprocess documents and query_list
+#preprocessing documents and query_list
 df['preprocessed_text'] = df.apply(lambda row: preprocess_text(row['title'], row['author'], row['bib'], row['text']), axis=1)
 preprocessed_queries = {query_id: preprocess_text(query_text, '', '', '') for query_id, query_text in query_list.items()}
 
-# vectorizer parameters for better performance
-# using trial and error, these parameters gave me the highest score 
+#vectorizer parameters for better performance
+#using trial and error, these parameters gave me the highest score 
 tfidf_vectorizer = TfidfVectorizer(max_df=0.72, min_df=0.001, max_features=4422, ngram_range=(1, 2))
 
-# Fit TF-IDF vectorizer on preprocessed documents
+#TF-IDF vectorizer on preprocessed documents
 tfidf_matrix = tfidf_vectorizer.fit_transform(df['preprocessed_text'])
 
 output_file = "checkvsm.txt"
 with open(output_file, 'w') as f:
     for query_id, query_text in preprocessed_queries.items():
-        # Transform the preprocessed query_from using the trained TF-IDF vectorizer
         query_vector = tfidf_vectorizer.transform([query_text])
-
-        # cosine similarity between the query_from vector and document vectors
         cosine_similarities = cosine_similarity(query_vector, tfidf_matrix)
-
-        # Get the indices of documents sorted by similarity score
         sorted_indices = cosine_similarities.argsort()[0][::-1]
 
         #top 100 results
