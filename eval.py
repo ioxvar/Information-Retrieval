@@ -1,32 +1,27 @@
+import os
+from dotenv import load_dotenv
 import subprocess
 
-# List of filenames
-filenames = ["checkql.txt", "checkql_dirichlet.txt", "checkql_jm.txt","checkbm.txt","checkvsm.txt","checklsa.txt"]
+load_dotenv()
+filenames = [os.getenv("QL_OUTPUT"), os.getenv("QL_D_OUTPUT"),os.getenv("QL_JM_OUTPUT"),os.getenv("BMS_OUTPUT"),os.getenv("VSM_OUTPUT"),os.getenv("LSA_OUTPUT")]
+display_names = ['Query Likelihood Model','Query Likelihood Model - Dirichlet Smoothing','Query Likelihood Model - JM Smoothing','BM25 model','Vector Space Model','Latent Semantic Analysis']
 
-# Open the results file in write mode
-with open("results.txt", "w") as results_file:
-    # Iterate over each filename
-    for filename in filenames:
-        # Define the command as a list of strings
-        command = ["trec_eval", "-m", "map", "-m", "P.5", "-m", "ndcg", "cranqrel.trec.txt", filename]
+with open(os.getenv("RESULTS"), "w") as results_file:
+    for filename,display_name in zip(filenames,display_names):
+        try:
+            terminal_command = ["trec_eval", "-m", "map", "-m", "P.5", "-m", "ndcg", "cranqrel.trec.txt", filename]
+            process = subprocess.Popen(terminal_command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            stdout, stderr = process.communicate()
+            stdout_str = stdout.decode("utf-8")
+            stderr_str = stderr.decode("utf-8")
 
-        # Execute the command
-        process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            results_file.write(f"Output for {display_name}:\n")
+            results_file.write(stdout_str)
+            results_file.write(stderr_str)
+            results_file.write("\n") 
 
-        # Wait for the process to finish and capture output
-        stdout, stderr = process.communicate()
-
-        # Decode the output if needed
-        stdout_str = stdout.decode("utf-8")
-        stderr_str = stderr.decode("utf-8")
-
-        # Write the output to the results file
-        results_file.write(f"Output for {filename}:\n")
-        results_file.write(stdout_str)
-        results_file.write(stderr_str)
-        results_file.write("\n")  # Add a newline for readability
-
-        # Print the output to the console
-        print(f"Output for {filename}:")
-        print(stdout_str)
-        print(stderr_str)
+            print(f"Output for {display_name}:")
+            print(stdout_str)
+            print(stderr_str)
+        except Exception as e:
+            print(f"An error occurred while running subprocess: {e}")

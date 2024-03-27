@@ -1,3 +1,5 @@
+import os
+from dotenv import load_dotenv
 import xml.etree.ElementTree as ET
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.decomposition import TruncatedSVD
@@ -11,7 +13,8 @@ import pandas as pd
 nltk.download('stopwords')
 nltk.download('punkt')
 
-xml_file = 'cran.all.1400.xml'
+load_dotenv()
+xml_file = os.getenv("XML")
 tree = ET.parse(xml_file)
 root = tree.getroot()
 
@@ -39,7 +42,7 @@ vectorizer = TfidfVectorizer(stop_words=stop_words_list, tokenizer=lambda doc: d
 tfidf_matrix = vectorizer.fit_transform(documents)
 
 #LSA using SVD
-n_components = 150  
+n_components = int(os.getenv("NCOMPONENTS"))
 lsa = TruncatedSVD(n_components=n_components)
 document_topics = lsa.fit_transform(tfidf_matrix)
 
@@ -53,12 +56,12 @@ def encode_query(query):
     query_topics = lsa.transform(query_tfidf)
     return query_topics
 
-query_file = 'cran.qry.xml'
+query_file = os.getenv("QUERIES")
 queries_df = pd.read_xml(query_file)
 queries_df.index += 1  
 queries = list(zip(queries_df.index, queries_df['title']))
-
-with open("checklsa.txt", "w") as output_file:
+output_file = os.getenv("LSA_OUTPUT")
+with open(output_file, "w") as output_file:
     for query_id, query_text in queries: 
         preprocessed_query = preprocess_query(query_text)
         query_topics = encode_query(preprocessed_query)

@@ -1,30 +1,30 @@
-Output for checkql.txt:
+Output for Query Likelihood Model:
 map                   	all	0.1771
 P_5                   	all	0.1938
 ndcg                  	all	0.4435
 
-Output for checkql_dirichlet.txt:
+Output for Query Likelihood Model - Dirichlet Smoothing:
 map                   	all	0.0122
 P_5                   	all	0.0080
 ndcg                  	all	0.2149
 
-Output for checkql_jm.txt:
+Output for Query Likelihood Model - JM Smoothing:
 map                   	all	0.0423
 P_5                   	all	0.0462
 ndcg                  	all	0.2799
 
-Output for checkbm.txt:
+Output for BM25 model:
 map                   	all	0.3069
 P_5                   	all	0.3218
 ndcg                  	all	0.5650
 
-Output for checkvsm.txt:
+Output for Vector Space Model:
 map                   	all	0.2865
 P_5                   	all	0.3111
 ndcg                  	all	0.4924
 
-Output for checklsa.txt:
-map                   	all	0.1270
-P_5                   	all	0.1538
-ndcg                  	all	0.3834
+Output for Latent Semantic Analysis:
+map                   	all	0.1306
+P_5                   	all	0.1520
+ndcg                  	all	0.3871
 

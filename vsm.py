@@ -1,3 +1,5 @@
+import os
+from dotenv import load_dotenv
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 import pandas as pd
@@ -23,8 +25,10 @@ def parse(data):
         docs.append(doc_dict)
     return docs
 
-data = 'cran.all.1400.xml'
-elements = parse(data)
+load_dotenv()
+xml_file = os.getenv("XML")
+
+elements = parse(xml_file)
 df = pd.DataFrame(elements)
 
 #extracting query_list
@@ -40,7 +44,7 @@ def query_from(data):
 
     return query_list
 
-query_list = query_from('cran.qry.xml')
+query_list = query_from(os.getenv("QUERIES"))
 
 stemmer = PorterStemmer()
 stop_words = set(stopwords.words('english'))
@@ -57,12 +61,12 @@ preprocessed_queries = {query_id: preprocess_text(query_text, '', '', '') for qu
 
 #vectorizer parameters for better performance
 #using trial and error, these parameters gave me the highest score 
-tfidf_vectorizer = TfidfVectorizer(max_df=0.72, min_df=0.001, max_features=4422, ngram_range=(1, 2))
+tfidf_vectorizer = TfidfVectorizer(max_df=float(os.getenv("MAX_DF")), min_df=float(os.getenv("MIN_DF")), max_features=int(os.getenv("MAX_FEATURES")), ngram_range=(1,2))
 
 #TF-IDF vectorizer on preprocessed documents
 tfidf_matrix = tfidf_vectorizer.fit_transform(df['preprocessed_text'])
 
-output_file = "checkvsm.txt"
+output_file = os.getenv("VSM_OUTPUT")
 with open(output_file, 'w') as f:
     for query_id, query_text in preprocessed_queries.items():
         query_vector = tfidf_vectorizer.transform([query_text])

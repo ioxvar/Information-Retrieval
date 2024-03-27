@@ -1,3 +1,5 @@
+import os
+from dotenv import load_dotenv
 import math
 from collections import Counter
 import pandas as pd
@@ -10,8 +12,8 @@ import nltk
 nltk.download('punkt')
 nltk.download('stopwords')
 
-
-xml_file = 'cran.all.1400.xml'
+load_dotenv()
+xml_file = os.getenv("XML")
 tree = ET.parse(xml_file)
 root = tree.getroot()
 
@@ -59,18 +61,19 @@ def calculate_bm25_score(document, preprocessed_query, document_length, avg_docu
         score += idf_values[term] * (numerator / denominator)
     return score
 
-query_file = 'cran.qry.xml'
+query_file = os.getenv("QUERIES")
 queries_df = pd.read_xml(query_file)
 queries_df.index += 1  # Increment index by 1 to start from 1
 queries = list(zip(queries_df.index, queries_df['title']))
 
 # parameters
 avg_document_length = sum(len(doc) for doc in preprocessed_documents) / document_count
-k1 = 3
-b = 0.6
+k1 = float(os.getenv("K1"))
+b = float(os.getenv("B"))
+output_file = os.getenv("BMS_OUTPUT")
 
 # output to text file
-with open("checkbm.txt", "w") as output_file:
+with open(output_file, "w") as output_file:
     for query_id, query_text in queries:
         preprocessed_query = preprocess_query(query_text)
         scores = []

@@ -1,3 +1,5 @@
+import os
+from dotenv import load_dotenv
 import math
 from collections import Counter
 import pandas as pd
@@ -10,8 +12,8 @@ import nltk
 nltk.download('punkt')
 nltk.download('stopwords')
 
-
-xml_file = 'cran.all.1400.xml'
+load_dotenv()
+xml_file = os.getenv("XML")
 tree = ET.parse(xml_file)
 root = tree.getroot()
 
@@ -82,12 +84,15 @@ def calculate_ql_score_jm(document, preprocessed_query, lambda_=0.7):
         score += math.log(numerator / total_terms_in_doc)
     return score
 
-query_file = 'cran.qry.xml'
+query_file = os.getenv("QUERIES")
 queries_df = pd.read_xml(query_file)
 queries_df.index += 1  
 queries = list(zip(queries_df.index, queries_df['title']))
+ql_output_file = os.getenv("QL_OUTPUT")
+ql_d_output_file = os.getenv("QL_D_OUTPUT")
+ql_jm_output_file = os.getenv("QL_JM_OUTPUT")
 
-with open("checkql.txt", "w") as output_file:
+with open(ql_output_file, "w") as output_file:
     for query_id, query_text in queries:
         preprocessed_query = preprocess_query(query_text)
         scores = []
@@ -98,7 +103,7 @@ with open("checkql.txt", "w") as output_file:
         for rank, (doc_id, score) in enumerate(ranked_documents, start=1):
             output_file.write(f"{query_id} Q0 {doc_id} {rank} {score} QL_NoSmoothing\n")
 
-with open("checkql_dirichlet.txt", "w") as output_file:
+with open(ql_d_output_file, "w") as output_file:
     for query_id, query_text in queries:
         preprocessed_query = preprocess_query(query_text)
         scores = []
@@ -109,7 +114,7 @@ with open("checkql_dirichlet.txt", "w") as output_file:
         for rank, (doc_id, score) in enumerate(ranked_documents, start=1):
             output_file.write(f"{query_id} Q0 {doc_id} {rank} {score} QL_Dirichlet\n")
 
-with open("checkql_jm.txt", "w") as output_file:
+with open(ql_jm_output_file, "w") as output_file:
     for query_id, query_text in queries:
         preprocessed_query = preprocess_query(query_text)
         scores = []
