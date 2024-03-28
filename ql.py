@@ -56,7 +56,7 @@ def calculate_ql_score(document, preprocessed_query):
     return score
 
 #Dirichlet smoothing
-def calculate_ql_score_dirichlet(document, preprocessed_query, mu=400):
+def calculate_ql_score_dirichlet(document, preprocessed_query, mu=int(os.getenv("MU"))):
     score = 0.0
     doc_term_freq = Counter(document)
     total_terms_in_doc = len(document)
@@ -70,7 +70,7 @@ def calculate_ql_score_dirichlet(document, preprocessed_query, mu=400):
     return score
 
 #JM smoothing
-def calculate_ql_score_jm(document, preprocessed_query, lambda_=0.7):
+def calculate_ql_score_jm(document, preprocessed_query, lambda_=float(os.getenv("LAMBDA"))):
     score = 0.0
     doc_term_freq = Counter(document)
     total_terms_in_doc = len(document)
